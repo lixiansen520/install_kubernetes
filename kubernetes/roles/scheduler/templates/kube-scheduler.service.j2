@@ -1,0 +1,35 @@
+[Unit]
+Description=Kubernetes Scheduler
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+
+[Service]
+WorkingDirectory=/usr/local/bin
+ExecStart={{binary_dir}}kube-scheduler \
+  --config={{kube_config_dir}}kube-scheduler.yaml \
+  --bind-address=0.0.0.0 \
+  --secure-port=10259 \
+  --port=0 \
+  --leader-elect=true \
+  --leader-elect-lease-duration=15s \
+  --leader-elect-renew-deadline=10s \
+  --leader-elect-resource-lock=endpoints \
+  --leader-elect-resource-name=kube-scheduler \
+  --leader-elect-resource-namespace=kube-system \
+  --leader-elect-retry-period=2s \
+  --tls-cert-file={{tls_dir}}kube_scheduler.pem \
+  --tls-private-key-file={{tls_dir}}kube_scheduler-key.pem \
+  --client-ca-file={{tls_dir}}ca.pem \
+  --requestheader-client-ca-file={{tls_dir}}ca.pem \
+  --requestheader-extra-headers-prefix="X-Remote-Extra-" \
+  --requestheader-group-headers=X-Remote-Group \
+  --requestheader-username-headers=X-Remote-User \
+  --authentication-kubeconfig={{kube_config_dir}}kube_scheduler.kubeconfig \
+  --authorization-kubeconfig={{kube_config_dir}}kube_scheduler.kubeconfig \
+  --logtostderr=true \
+  --v=2
+Restart=always
+RestartSec=5
+StartLimitInterval=0
+
+[Install]
+WantedBy=multi-user.target

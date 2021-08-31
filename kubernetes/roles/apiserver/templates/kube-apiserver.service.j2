@@ -1,0 +1,65 @@
+[Unit]
+Description=Kubernetes API Server
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=network.target
+
+[Service]
+WorkingDirectory=/usr/local/bin
+ExecStart={{binary_dir}}kube-apiserver \
+  --advertise-address={{ inventory_hostname }} \
+  --default-not-ready-toleration-seconds=360 \
+  --default-unreachable-toleration-seconds=360 \
+  --max-mutating-requests-inflight=2000 \
+  --max-requests-inflight=4000 \
+  --default-watch-cache-size=200 \
+  --delete-collection-workers=2 \
+  --encryption-provider-config={{kube_config_dir}}encryption-config.yaml \
+  --etcd-cafile={{ tls_dir }}ca.pem \
+  --etcd-certfile={{ tls_dir }}kube_apiserver.pem \
+  --etcd-keyfile={{ tls_dir }}kube_apiserver-key.pem \
+  --etcd-servers={% for host in groups['etcd'] %}https://{{hostvars[host]['inventory_hostname']}}:2379{% if not loop.last %},{% endif %}{% endfor %} \
+  --bind-address=0.0.0.0 \
+  --secure-port=6443 \
+  --tls-cert-file={{ tls_dir }}kube_apiserver.pem \
+  --tls-private-key-file={{ tls_dir }}kube_apiserver-key.pem \
+  --insecure-port=0 \
+  --audit-log-maxage=15 \
+  --audit-log-maxbackup=3 \
+  --audit-log-maxsize=100 \
+  --audit-log-truncate-enabled \
+  --audit-log-path=/var/log/kube-audit.log \
+  --audit-policy-file={{kube_config_dir}}audit-policy.yaml \
+  --profiling \
+  --anonymous-auth=false \
+  --client-ca-file={{ tls_dir }}ca.pem \
+  --enable-bootstrap-token-auth \
+  --requestheader-allowed-names="aggregator" \
+  --requestheader-client-ca-file={{ tls_dir }}ca.pem \
+  --requestheader-extra-headers-prefix="X-Remote-Extra-" \
+  --requestheader-group-headers=X-Remote-Group \
+  --requestheader-username-headers=X-Remote-User \
+  --service-account-key-file={{ tls_dir }}ca.pem \
+  --authorization-mode=Node,RBAC \
+  --runtime-config=api/all=true \
+  --enable-admission-plugins=NodeRestriction \
+  --allow-privileged=true \
+  --apiserver-count=3 \
+  --event-ttl=168h \
+  --kubelet-certificate-authority={{ tls_dir }}ca.pem \
+  --kubelet-client-certificate={{ tls_dir }}kube_apiserver.pem \
+  --kubelet-client-key={{ tls_dir }}kube_apiserver-key.pem \
+  --kubelet-https=true \
+  --kubelet-timeout=10s \
+  --proxy-client-cert-file={{ tls_dir }}proxy_client.pem \
+  --proxy-client-key-file={{ tls_dir }}proxy_client-key.pem \
+  --service-cluster-ip-range={{service_cluster_ip_range}} \
+  --service-node-port-range={{service_node_port_range}} \
+  --logtostderr=true \
+  --v=2
+Restart=on-failure
+RestartSec=10
+Type=notify
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,23 @@
+---
+- name: check pem | check for peer TLS certificate
+  command: /usr/bin/openssl verify -CAfile /opt/ssl/ca.pem /opt/ssl/{{ item }}.pem
+  register: command_result
+  failed_when: "'OK' not in command_result.stdout"
+  loop: "{{ peer }}"
+  when: peer[0] != 0
+
+
+- name: check pem | check for server TLS certificate
+  command: /usr/bin/openssl verify -CAfile /opt/ssl/ca.pem /opt/ssl/{{ item }}.pem
+  register: command_result
+  failed_when: "'OK' not in command_result.stdout"
+  loop: "{{ server }}"
+  when: server[0] != 0
+
+
+- name: check pem | check for client TLS certificate
+  command: /usr/bin/openssl verify -CAfile /opt/ssl/ca.pem /opt/ssl/{{ item }}.pem
+  register: command_result
+  failed_when: "'OK' not in command_result.stdout"
+  loop: "{{ client }}"
+  when: client[0] != 0

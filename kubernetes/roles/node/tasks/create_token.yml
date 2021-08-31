@@ -1,0 +1,41 @@
+---
+- name: cteate token | skip node if ca file exist
+  shell: ls {{ tls_dir }}
+  delegate_to: "{{node_name}}"
+  run_once: True
+  register: result
+
+- name: cteate token | cteate token
+  shell: kubeadm token create \
+          --description kubelet-bootstrap-token \
+          --groups system:bootstrappers:{{node_name.replace('.','-')}} \
+          --kubeconfig ~/.kube/config &> /dev/null
+  delegate_to: "{{ groups['kube_master'][0] }}"
+  run_once: True
+  when: "'kubelet-client-current.pem' not in result.stdout"
+
+- name: create token | get token
+  shell: kubeadm token list --kubeconfig ~/.kube/config | grep {{node_name.replace('.','-')}} | awk '{print $1}' | tail -1
+  register: token
+  delegate_to: "{{ groups['kube_master'][0] }}"
+  run_once: True
+  when: "'kubelet-client-current.pem' not in result.stdout"
+
+
+- name: create token | set kube config
+  shell: kubectl config set-cluster kubernetes \
+          --certificate-authority={{tls_dir}}ca.pem \
+          --embed-certs=true \
+          --server=https://{{vip}}:8443 \
+          --kubeconfig={{kube_config_dir}}kubelet-bootstrap-{{node_name.replace('.','-')}}.kubeconfig && \
+          kubectl config set-credentials kubelet-bootstrap \
+          --token={{token.stdout}} \
+          --kubeconfig={{kube_config_dir}}kubelet-bootstrap-{{node_name.replace('.','-')}}.kubeconfig && \
+          kubectl config set-context default \
+          --cluster=kubernetes \
+          --user=kubelet-bootstrap \
+          --kubeconfig={{kube_config_dir}}kubelet-bootstrap-{{node_name.replace('.','-')}}.kubeconfig && \
+          kubectl config use-context default --kubeconfig={{kube_config_dir}}kubelet-bootstrap-{{node_name.replace('.','-')}}.kubeconfig
+  delegate_to: "{{node_name}}"
+  run_once: True
+  when: "'kubelet-client-current.pem' not in result.stdout"

@@ -1,0 +1,35 @@
+---
+#  cluster_name = 集群名称
+#  ca = ca证书的路径
+#  server_addr = apiserver的地址
+#  config_file_name = 生成完成的kube-config配置文件目录
+#  user_name = 用户名
+#  client_cert = 客户端证书
+#  client_cert_key = 客户端证书秘钥
+#  content_name = 上下文名称
+- name: set chmod
+  file:
+    path: "{{playbook_dir}}/roles/client/files/kubectl"
+    mode: "0777"
+
+
+- name: create kube-config
+  shell: "{{playbook_dir}}/roles/client/files/kubectl config set-cluster {{ client[item]['cluster_name'] }} \
+          --certificate-authority={{ client[item]['ca'] }} \
+          --embed-certs=true \
+          --server={{ client[item]['server_addr'] }} \
+          --kubeconfig={{ client[item]['config_file_name'] }} && \
+         {{playbook_dir}}/roles/client/files/kubectl config set-credentials {{ client[item]['user_name'] }} \
+          --client-certificate={{ client[item]['client_cert'] }} \
+          --client-key={{ client[item]['client_cert_key'] }} \
+          --embed-certs=true \
+          --kubeconfig={{ client[item]['config_file_name'] }} && \
+         {{playbook_dir}}/roles/client/files/kubectl config set-context {{ client[item]['content_name'] }} \
+          --cluster={{ client[item]['cluster_name'] }} \
+          --user={{ client[item]['user_name'] }} \
+          --kubeconfig={{ client[item]['config_file_name'] }} && \
+          {{playbook_dir}}/roles/client/files/kubectl config use-context {{ client[item]['content_name'] }} --kubeconfig={{ client[item]['config_file_name'] }}"
+  loop: "{{ task_list }}"
+
+
+             

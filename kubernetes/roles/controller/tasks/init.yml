@@ -1,0 +1,32 @@
+---
+- name: init | rsync TLS certificate
+  copy: 
+    src: "{{ item }}"
+    dest: "{{ tls_dir }}"
+  loop: 
+    - "{{local_tls}}ca.pem"
+    - "{{local_tls}}ca-key.pem"
+    - "{{local_tls}}kube_controller_manager.pem"
+    - "{{local_tls}}kube_controller_manager-key.pem"
+
+- name: init | set kubectl config
+  copy:
+    src: "{{local_tls}}kube_controller_manager.kubeconfig"
+    dest: "{{kube_config_dir}}"
+    mode: "0644"
+
+
+- name: init | rsync configure
+  template:
+    dest: /lib/systemd/system/kube-controller-manager.service
+    src: kube-controller-manager.service.j2
+    mode: '0644'
+
+
+- name: init | send kube-controller-manager binary file to master
+  copy:
+    src: kube-controller-manager
+    dest: "{{binary_dir}}"
+    mode: '0755'
+
+    

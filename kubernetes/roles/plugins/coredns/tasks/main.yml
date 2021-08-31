@@ -1,0 +1,11 @@
+---
+- name: copy template to Master
+  template:
+      dest: /root/coredns.yaml
+      src: coredns.yaml
+      mode: '0644'
+  tags: [ 'coredns' ]
+  
+- name: apply coredns for kubernetes cluster
+  shell: kubectl apply -f /root/coredns.yaml
+  tags: [ 'coredns' ]

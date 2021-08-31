@@ -1,0 +1,50 @@
+- name: rsync binary files
+  import_playbook: "{{ playbook_dir }}/playbooks/download.yml"
+  tags: [ binary ]
+
+- name: init node
+  hosts: all
+  roles:
+  - role: init_node
+  - role: client
+  tags: [ init ]
+
+- name: Initialize configure
+  hosts: 127.0.0.1
+  roles:
+  - role: tls
+  - role: common
+  tags: [ init ]
+
+- name: install Master
+  hosts: kube_master
+  roles:
+  - role: etcd
+  - role: apiserver
+  - role: ha
+  - role: controller
+  - role: scheduler
+  tags: [ Master ]
+
+- name: node
+  hosts: node
+  roles:
+  - container
+  - node
+  tags: [ node ]
+
+- name: pulgins
+  hosts: "{{ groups['kube_master'][0] }}"
+  roles:
+  - plugins
+  tags: [ plugins ]
+
+
+- name: add_node
+  hosts: "{{ node_group }}"
+  roles:
+  - role: init_node
+  - role: client
+  - role: container
+  - role: node
+  tags: [ add_node ]

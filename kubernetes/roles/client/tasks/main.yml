@@ -1,0 +1,23 @@
+---
+- name: main | rsync files
+  copy:
+    src: "{{ item.src}}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - {src: kubectl, dest: /usr/local/bin, mode: '0755' }
+    - {src: kubeadm, dest: /usr/local/bin, mode: '0755' }
+
+- name: main | Create a directory if it does not exist
+  file:
+    path: /root/.kube/
+    state: directory
+    mode: '0755'
+  when: "inventory_hostname in groups['kube_master']"
+
+- name: main | set kubectl config
+  copy:
+    src: "{{local_tls}}kubectl.kubeconfig"
+    dest: /root/.kube/config
+    mode: "0644"
+  when: "inventory_hostname in groups['kube_master']"

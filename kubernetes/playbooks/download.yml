@@ -1,0 +1,35 @@
+- hosts: 127.0.0.1
+  tasks:
+    - name: init | creating files dir
+      file:
+        path: "../{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - roles/apiserver/files/
+        - roles/controller/files/
+        - roles/client/files/
+        - roles/scheduler/files/
+        - roles/etcd/files/
+        - roles/node/files/
+
+    - name: init | unzip packages
+      unarchive:
+        src: "../packages/kubernetes-server-linux-amd64.tar.gz"
+        dest: "../packages/"
+
+    - name: init | copy binary files for playbook files dir
+      copy:
+        src: "../packages/{{ item.src }}"
+        dest: ../roles/{{ item.dest }}/files/
+      loop:
+        - { src: kubernetes/server/bin/kube-apiserver, dest: apiserver }
+        - { src: kubernetes/server/bin/kube-controller-manager, dest: controller }
+        - { src: kubernetes/server/bin/kube-scheduler, dest: scheduler }
+        - { src: kubernetes/server/bin/kubeadm, dest: client }
+        - { src: kubernetes/server/bin/kubectl, dest: client }
+        - { src: kubernetes/server/bin/kubelet, dest: node }
+        - { src: kubernetes/server/bin/kube-proxy, dest: node }
+
+
+    

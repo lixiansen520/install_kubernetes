@@ -1,0 +1,30 @@
+[Unit]
+Description=Kubernetes Kubelet
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=containerd.service
+Requires=containerd.service
+
+[Service]
+WorkingDirectory={{binary_dir}}
+ExecStart={{binary_dir}}kubelet \
+  --bootstrap-kubeconfig={{kube_config_dir}}kubelet-bootstrap-{{inventory_hostname.replace('.', '-')}}.kubeconfig \
+  --cert-dir={{kube_config_dir}}ssl \
+  --network-plugin=cni \
+  --root-dir=/var/lib/kubelet \
+  --hostname-override={{inventory_hostname}} \
+  --kubeconfig={{kube_config_dir}}kubelet.kubeconfig \
+  --config={{kube_config_dir}}kubelet-config.yaml \
+  --image-pull-progress-deadline=15m \
+  --volume-plugin-dir=/kubelet/kubelet-plugins/volume/exec/ \
+  --pod-infra-container-image={{pause_image}} \
+  --cni-bin-dir=/opt/cni/bin \
+  --cni-cache-dir=/var/lib/cni/cache \
+  --cni-conf-dir=/etc/cni/net.d \
+  --logtostderr=true \
+  --v=2
+Restart=always
+RestartSec=5
+StartLimitInterval=0
+
+[Install]
+WantedBy=multi-user.target

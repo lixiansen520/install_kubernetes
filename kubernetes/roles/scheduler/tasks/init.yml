@@ -1,0 +1,32 @@
+---
+- name: init | rsync TLS certificate
+  copy: 
+    src: "{{ item }}"
+    dest: "{{ tls_dir }}"
+  loop: 
+    - "{{local_tls}}ca.pem"
+    - "{{local_tls}}kube_scheduler.pem"
+    - "{{local_tls}}kube_scheduler-key.pem"
+
+- name: init | set kubectl config
+  copy:
+    src: "{{local_tls}}kube_scheduler.kubeconfig"
+    dest: "{{kube_config_dir}}"
+    mode: "0644"
+
+
+- name: init | rsync configure
+  template:
+    dest: "{{ item.dest }}"
+    src: "{{ item.src }}"
+    mode: '0644'
+  loop:
+    - {src: kube-scheduler.service.j2, dest: /lib/systemd/system/kube-scheduler.service}
+    - {src: kube-scheduler.yaml.j2, dest: "{{kube_config_dir}}kube-scheduler.yaml"}
+
+- name: init | send kube-scheduler binary file to master
+  copy:
+    src: kube-scheduler
+    dest: "{{binary_dir}}"
+    mode: '0755'
+

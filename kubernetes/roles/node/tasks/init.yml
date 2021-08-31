@@ -1,0 +1,14 @@
+---
+- name: init | sync TLS certificate
+  copy: 
+    src: "{{ item }}"
+    dest: "{{ tls_dir }}"
+  loop: 
+    - "{{local_tls}}ca.pem"
+    - "{{local_tls}}kube_proxy.pem"
+    - "{{local_tls}}kube_proxy-key.pem"
+
+- include_tasks: create_token.yml
+  loop: "{{ groups['node' if not node_group else node_group] }}"
+  loop_control:
+    loop_var: node_name

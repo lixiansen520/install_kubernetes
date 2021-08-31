@@ -1,0 +1,25 @@
+- name: create  rqs | Creating peer request json file
+  template:
+    src: peer.json.j2
+    dest: /opt/ssl/{{ item }}_peer.json
+    mode: '0644'
+  loop: "{{ peer }}"
+  when: peer[0] != 0
+
+
+- name: create  rqs | Creating server request json file
+  template:
+    src: peer.json.j2
+    dest: /opt/ssl/{{ item }}_server.json
+    mode: '0644'
+  loop: "{{ server }}"
+  when: server[0] != 0
+
+
+- name: create  rqs | Creating client request json file
+  template:
+    src: peer.json.j2
+    dest: /opt/ssl/{{ item }}_client.json
+    mode: '0644'
+  loop: "{{ client }}"
+  when: client[0] != 0

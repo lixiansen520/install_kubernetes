@@ -1,0 +1,60 @@
+peer:
+ - etcd
+ - kube_apiserver
+ - proxy_client
+ - admin
+ - kube_controller_manager
+ - kube_scheduler
+ - kube_proxy
+
+server:
+ - 0
+
+client:
+ - 0
+
+
+default_users:
+  etcd:
+    CN: etcd
+    OU: System
+    O: kubernetes
+  kube_apiserver: 
+    CN: kubernetes-master
+    OU: System
+    O: kubernetes
+  kube_controller_manager: 
+    CN: system:kube-controller-manager
+    OU: System
+    O: system:kube-controller-manager
+  kube_scheduler:
+    CN: system:kube-scheduler
+    OU: System
+    O: system:kube-scheduler
+  proxy_client:
+    CN: aggregator
+    OU: System
+    O: kubernetes
+  admin:
+    CN: admin
+    OU: System
+    O: system:masters
+  kube_proxy: 
+    CN: system:kube-proxy
+    OU: System
+    O: system:masters
+
+extra_hosts:
+  kube_apiserver:
+    - "{{ vip }}"
+    - "{{kubernetes_svc_ip}}"
+    - "127.0.0.1"
+    - kubernetes
+    - kubernetes.default
+    - kubernetes.default.svc
+    - kubernetes.default.svc.cluster
+    - kubernetes.default.svc.cluster.local
+  kube_controller_manager:
+    - "127.0.0.1"
+  kube_scheduler:
+    - "127.0.0.1"

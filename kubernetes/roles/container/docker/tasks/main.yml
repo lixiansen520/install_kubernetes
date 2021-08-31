@@ -1,0 +1,35 @@
+---
+- name: install tools
+  yum:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - yum-utils
+    - device-mapper-persistent-data
+    - lvm2
+  when: ansible_os_family in ["RedHat"]
+
+- name: add Docker repo
+  shell: "{{ item }}"
+  loop:
+    - yum-config-manager --add-repo {{docker_repo}}
+    - yum makecache fast
+
+- name: install Docker for {{ docker_pkgs }}
+  yum:
+    name: "{{ docker_pkgs }}"
+    state: present
+
+- name: Create a directory for docker if it does not exist
+  file:
+    path: /etc/docker
+    state: directory
+    mode: '0755'  
+
+- name: Set configure for docker
+  template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    mode: '0644'
+  notify:
+    - start docker

@@ -1,0 +1,10 @@
+- name: init | rsync TLS certificate
+  copy: 
+    src: "{{ item }}"
+    dest: "{{ tls_dir }}"
+  loop: 
+    - "{{local_tls}}ca.pem"
+    - "{{local_tls}}kube_apiserver.pem"
+    - "{{local_tls}}kube_apiserver-key.pem"
+    - "{{local_tls}}proxy_client.pem"
+    - "{{local_tls}}proxy_client-key.pem"

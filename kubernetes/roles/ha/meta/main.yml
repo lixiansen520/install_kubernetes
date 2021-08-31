@@ -1,0 +1,13 @@
+---
+dependencies:
+  - role: ha/haproxy
+    when:
+      - ha_mode == 'keepalived'
+    tags:
+      - ha
+
+  - role: ha/keepalived
+    when:
+      - ha_mode == 'keepalived'
+    tags:
+      - ha

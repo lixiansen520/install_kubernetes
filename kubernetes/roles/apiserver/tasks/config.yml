@@ -1,0 +1,17 @@
+---
+# 为ETCD创建加密配置文件
+- name: config | rsync encryption config 
+  template: 
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - { src: encryption-config.yaml.j2, dest: "{{ kube_config_dir }}encryption-config.yaml"}
+    - { src: kube-apiserver.service.j2, dest: /lib/systemd/system/kube-apiserver.service }
+
+- name: config | rsync audit policy
+  copy: 
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: '0644'
+  loop:
+    - { src: audit-policy.yaml, dest: "{{ kube_config_dir }}"}

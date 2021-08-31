@@ -1,0 +1,79 @@
+---
+- name: kubelet | sync binary file
+  copy:
+    dest: "{{binary_dir}}kubelet"
+    src: kubelet
+    mode: '0755'
+
+
+- name: kubelet | sync configure
+  template:
+      dest: "{{item.dest}}"
+      src:  "{{item.src}}"
+      mode: "{{item.mode}}"
+  loop:
+    - { src: kubelet-config.yaml.j2, dest: "{{kube_config_dir}}kubelet-config.yaml", mode: "0644" }
+    - { src: kubelet.service.j2, dest: "/lib/systemd/system/kubelet.service", mode: "0644" }
+
+
+- name: kubelet | checking kubelet role for apiserver
+  shell: kubectl get clusterrolebinding | grep kubelet-apis
+  delegate_to: "{{ groups['kube_master'][0] }}"
+  ignore_errors: yes
+  run_once: True
+  register: result
+
+- name: kubelet | binding kubelet role for apiserver
+  shell: kubectl create clusterrolebinding kube-apiserver:kubelet-apis --clusterrole=system:kubelet-api-admin --user kubernetes-master
+  delegate_to: "{{ groups['kube_master'][0] }}"
+  run_once: True
+  when: result.rc == 1
+  
+
+- name: kubelet | checking kubelet role for kubelet
+  shell: kubectl get clusterrolebinding | grep kubelet-bootstrap
+  ignore_errors: yes
+  delegate_to: "{{ groups['kube_master'][0] }}"
+  run_once: True
+  register: result_kubelet
+
+- name: kubelet | binding kubelet role for kubelet
+  shell: kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --group=system:bootstrappers
+  delegate_to: "{{ groups['kube_master'][0] }}"
+  run_once: True
+  when: result_kubelet.rc == 1
+
+
+- name: kubelet | checking rolebinding
+  shell: kubectl get clusterrolebinding | grep -E 'auto-approve-csrs-for-group|node-client-cert-renewal|node-server-cert-renewal' | wc -l
+  register: rolebinding_result
+  delegate_to: "{{ groups['kube_master'][0] }}"
+
+- name: kubelet | rsync csr-crb.yaml
+  copy:
+    src: csr-crb.yaml
+    dest: /root/
+    mode: '0644'
+  delegate_to: "{{ groups['kube_master'][0] }}"
+  run_once: True
+  when: "'3' not in rolebinding_result.stdout"
+
+- name: kubelet | auto_approve Roles
+  shell: "kubectl apply -f /root/csr-crb.yaml" 
+  delegate_to: "{{ groups['kube_master'][0] }}"
+  run_once: True
+  register: approve_result
+  failed_when: "'created' not in approve_result.stdout"
+  when: "'3' not in rolebinding_result.stdout"
+
+- name: kubelet | debug
+  debug:
+    msg: "{{ approve_result }}"
+    verbosity: 1
+
+- name: kubelet | start kubelet
+  systemd:
+    name: kubelet 
+    state: restarted 
+    enabled: yes 
+    daemon_reload: yes

@@ -1,0 +1,7 @@
+---
+dependencies:
+  - role: plugins/coredns
+    when:
+      - core_dns
+    tags:
+      - core_dns

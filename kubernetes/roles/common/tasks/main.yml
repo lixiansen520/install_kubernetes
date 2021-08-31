@@ -1,0 +1,4 @@
+---
+- name: main | create kube-config
+  import_tasks: ctl_conf.yml
+  when: kube_conf

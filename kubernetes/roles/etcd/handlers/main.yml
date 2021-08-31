@@ -1,0 +1,4 @@
+- name: starting ETCD server
+  systemd:
+    name: etcd 
+    state: restarted 

@@ -1,0 +1,7 @@
+---
+- include_tasks: "init.yml"
+- import_tasks: "kubelet.yml"
+- import_tasks: "kube_proxy.yml"
+- name: main | install calico
+  import_tasks: "calico.yml"
+  when: cni == 'calico' and not node_group

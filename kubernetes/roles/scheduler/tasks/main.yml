@@ -1,0 +1,11 @@
+---
+- include_tasks: "init.yml"
+
+- name: main | start kube-scheduler
+  systemd:
+    name: kube-scheduler
+    state: restarted 
+    enabled: yes 
+    daemon_reload: yes
+
+- include_tasks: "check.yml"

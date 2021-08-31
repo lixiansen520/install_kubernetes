@@ -1,0 +1,23 @@
+---
+- name: kube_proxy | sync binary file
+  copy:
+    dest: "{{binary_dir}}kube-proxy"
+    src: kube-proxy
+    mode: '0755'
+
+
+- name: kube_proxy | sync configure
+  template:
+      dest: "{{item.dest}}"
+      src:  "{{item.src}}"
+      mode: "{{item.mode}}"
+  loop:
+    - { src: kube-proxy-config.yaml.j2, dest: "{{kube_config_dir}}kube-proxy-config.yaml", mode: "0644" }
+    - { src: kube-proxy.service.j2, dest: "/lib/systemd/system/kube-proxy.service", mode: "0644" }
+    - { src: "{{local_tls}}kube_proxy.kubeconfig", dest: "{{kube_config_dir}}kube_proxy.kubeconfig", mode: "0644" }
+
+- name: kube_proxy | starting kube-proxy
+  systemd:
+    name: kube-proxy
+    state: restarted
+    enabled: yes

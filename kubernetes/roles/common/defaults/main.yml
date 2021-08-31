@@ -1,0 +1,54 @@
+
+admin:
+  cluster_name: kubernetes
+  ca: /opt/ssl/ca.pem
+  server_addr: https://{{ vip }}:8443
+  config_file_name: /opt/ssl/kubectl.kubeconfig
+  user_name: admin
+  client_cert: /opt/ssl/admin.pem
+  client_cert_key: /opt/ssl/admin-key.pem
+  content_name: kubernetes
+
+kube_controller_manager:
+  cluster_name: kubernetes
+  ca: /opt/ssl/ca.pem
+  server_addr: https://{{ vip }}:8443
+  config_file_name: /opt/ssl/kube_controller_manager.kubeconfig
+  user_name: system:kube_controller_manager
+  client_cert: /opt/ssl/kube_controller_manager.pem
+  client_cert_key: /opt/ssl/kube_controller_manager-key.pem
+  content_name: system:kube_controller_manager
+
+kube_scheduler:
+  cluster_name: kubernetes
+  ca: /opt/ssl/ca.pem
+  server_addr: https://{{ vip }}:8443
+  config_file_name: /opt/ssl/kube_scheduler.kubeconfig
+  user_name: system:kube-scheduler
+  client_cert: /opt/ssl/kube_scheduler.pem
+  client_cert_key: /opt/ssl/kube_scheduler-key.pem
+  content_name: system:kube-scheduler
+
+kube_proxy:
+  cluster_name: kubernetes
+  ca: /opt/ssl/ca.pem
+  server_addr: https://{{ vip }}:8443
+  config_file_name: /opt/ssl/kube_proxy.kubeconfig
+  user_name: kube-proxy
+  client_cert: /opt/ssl/kube_proxy.pem
+  client_cert_key: /opt/ssl/kube_proxy-key.pem
+  content_name: default
+
+
+client:
+  admin: "{{ admin }}"
+  kube_controller_manager: "{{ kube_controller_manager }}"
+  kube_scheduler: "{{ kube_scheduler }}"
+  kube_proxy: "{{kube_proxy}}"
+
+
+task_list:
+  - admin
+  - kube_controller_manager
+  - kube_scheduler
+  - kube_proxy

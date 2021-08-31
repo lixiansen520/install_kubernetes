@@ -1,0 +1,23 @@
+{
+  "CN": "{{ default_users[item]['CN'] }}",
+  "hosts": [ {% if groups.get(item) %}
+    {% for host in groups.get(item) %}
+    "{{ host }}"{% if not loop.last %},{% endif %}
+    {% endfor %}
+    {% if extra_hosts[item] | default(false) %}, {% for host in extra_hosts[item] %}"{{host}}"{% if not loop.last %},{% endif %}{% endfor %}{% endif %}
+    {% endif %}
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "Shanhai",
+      "L": "Shanhai",
+      "O": "{{ default_users[item]['O'] }}",
+      "OU": "{{ default_users[item]['OU'] }}"
+    }
+  ]
+}

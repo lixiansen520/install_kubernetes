@@ -1,0 +1,15 @@
+---
+- name: deploy | rsync binary files
+  copy:
+    src: "{{ item }}"
+    dest: "{{binary_dir}}"
+    mode: '0755'
+  loop:
+    - kube-apiserver
+
+- name: deploy | start apiserver
+  systemd:
+    name: kube-apiserver 
+    state: restarted 
+    enabled: yes 
+    daemon_reload: yes

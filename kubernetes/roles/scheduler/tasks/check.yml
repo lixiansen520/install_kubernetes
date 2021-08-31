@@ -1,0 +1,18 @@
+---
+- name: check | checking health for kube_scheduler
+  uri:
+    url: https://{{item}}:10259/healthz
+    client_cert: "{{ tls_dir }}kube_scheduler.pem"
+    client_key: "{{ tls_dir }}kube_scheduler-key.pem"
+    return_content: yes
+    status_code:
+      - 200
+      - 500
+    validate_certs: no
+  run_once: true
+  delegate_to: "{{ groups['kube_scheduler'][0] }}"
+  register: kube_scheduler_health
+  until: " 'ok' in  kube_scheduler_health.content"
+  retries: 5
+  delay: 10
+  loop: "{{ groups['kube_scheduler'] }}"

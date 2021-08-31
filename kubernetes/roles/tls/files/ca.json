@@ -1,0 +1,17 @@
+{
+    "CN": "CA",
+    "key": {
+      "algo": "rsa",
+      "size": 2048
+    },
+    "names": [
+      {
+        "C": "CN",
+        "ST": "Shanhai",
+        "L": "Shanhai",
+        "O": "Mu77Mu77",
+        "OU": "ops"
+      }
+    ]
+  }
+  

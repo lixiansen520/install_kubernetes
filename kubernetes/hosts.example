@@ -1,0 +1,34 @@
+[kube_master]
+192.168.1.49 cluster_name=etcd1
+192.168.1.50 cluster_name=etcd2
+192.168.1.91 cluster_name=etcd3
+
+[etcd:children]
+kube_master
+
+
+[kubelet:children]
+kube_master
+
+[kube_apiserver:children]
+kube_master
+
+[keepalived:children]
+kube_master
+
+[haproxy:children]
+kube_master
+
+[ha:children]
+keepalived
+haproxy
+
+[kube_controller_manager:children]
+kube_master
+
+[kube_scheduler:children]
+kube_master
+
+[node]
+192.168.1.40
+192.168.1.38

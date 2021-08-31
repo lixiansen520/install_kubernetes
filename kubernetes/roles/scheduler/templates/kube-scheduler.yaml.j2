@@ -1,0 +1,12 @@
+apiVersion: kubescheduler.config.k8s.io/v1beta1
+kind: KubeSchedulerConfiguration
+clientConnection:
+  burst: 200
+  kubeconfig: "{{kube_config_dir}}kube_scheduler.kubeconfig"
+  qps: 100
+enableContentionProfiling: false
+enableProfiling: true
+healthzBindAddress: 0.0.0.0:10251
+leaderElection:
+  leaderElect: true
+metricsBindAddress: 0.0.0.0:10251

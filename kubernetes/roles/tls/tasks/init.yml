@@ -1,0 +1,31 @@
+---
+- name: init | Create a directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - /etc/kubernetes/ssl/
+    - /opt/ssl
+
+- name: init | copy cfssl binary to /opt/ssl
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - { src: cfssl_1.5.0_linux_amd64, dest: /opt/ssl/cfssl, mode: "0755"}
+    - { src: cfssljson_1.5.0_linux_amd64, dest: /opt/ssl/cfssljson, mode: "0755"}
+    - { src: ca.json, dest: /opt/ssl/ca.json, mode: "0644"}
+    - { src: ca-config.json, dest: /opt/ssl/ca-config.json, mode: "0644"}
+
+- name: init | check ca cert
+  stat:
+    path: "/opt/ssl/ca.pem"
+  register: ca_file
+
+- name: init | create ca 
+  shell: ./cfssl gencert  -initca ca.json | ./cfssljson -bare ca
+  args: 
+    chdir: /opt/ssl
+  when: ca_file.stat.exists == False

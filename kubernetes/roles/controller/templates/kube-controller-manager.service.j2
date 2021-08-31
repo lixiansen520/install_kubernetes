@@ -1,0 +1,51 @@
+[Unit]
+Description=Kubernetes Controller Manager
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+
+[Service]
+WorkingDirectory=/usr/local/
+ExecStart={{binary_dir}}kube-controller-manager \
+  --profiling \
+  --cluster-name=kubernetes \
+  --controllers=*,bootstrapsigner,tokencleaner \
+  --kube-api-qps=1000 \
+  --kube-api-burst=2000 \
+  --leader-elect \
+  --use-service-account-credentials\
+  --concurrent-service-syncs=2 \
+  --bind-address=0.0.0.0 \
+  --secure-port=10252 \
+  --tls-cert-file={{tls_dir}}kube_controller_manager.pem \
+  --tls-private-key-file={{tls_dir}}kube_controller_manager-key.pem \
+  --port=0 \
+  --authentication-kubeconfig={{kube_config_dir}}kube_controller_manager.kubeconfig \
+  --client-ca-file={{tls_dir}}ca.pem \
+  --requestheader-allowed-names="aggregator" \
+  --requestheader-client-ca-file={{tls_dir}}ca.pem \
+  --requestheader-extra-headers-prefix="X-Remote-Extra-" \
+  --requestheader-group-headers=X-Remote-Group \
+  --requestheader-username-headers=X-Remote-User \
+  --authorization-kubeconfig={{kube_config_dir}}kube_controller_manager.kubeconfig \
+  --cluster-signing-cert-file={{tls_dir}}ca.pem \
+  --cluster-signing-key-file={{tls_dir}}ca-key.pem \
+  --experimental-cluster-signing-duration=876000h \
+  --horizontal-pod-autoscaler-sync-period=10s \
+  --concurrent-deployment-syncs=10 \
+  --concurrent-gc-syncs=30 \
+  --node-cidr-mask-size=24 \
+  {% if cni != "calico" %}
+  --allocate-node-cidrs=true \
+  --cluster-cidr=10.244.0.0/16 \
+  {% endif %}--service-cluster-ip-range={{service_cluster_ip_range}} \
+  --pod-eviction-timeout=6m \
+  --terminated-pod-gc-threshold=10000 \
+  --root-ca-file={{tls_dir}}ca.pem \
+  --service-account-private-key-file={{tls_dir}}ca-key.pem \
+  --kubeconfig={{kube_config_dir}}kube_controller_manager.kubeconfig \
+  --logtostderr=true \
+  --v=2
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,12 @@
+---
+- name: calico | init
+  template:
+      dest: /root/calico.yaml
+      src: calico.yaml.j2
+  delegate_to: "{{ groups['kube_master'][0] }}"
+  run_once: True
+
+- name: calico | apply calico
+  shell: kubectl apply -f /root/calico.yaml
+  delegate_to: "{{ groups['kube_master'][0] }}"
+  run_once: Trues
