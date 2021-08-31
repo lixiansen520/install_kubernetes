@@ -1,0 +1,15 @@
+---
+- name: check | checking health for etcd
+  uri:
+    url: https://{{item}}:2379/health
+    client_cert: "{{tls_dir}}etcd.pem"
+    client_key: "{{tls_dir}}etcd-key.pem"
+    return_content: yes
+    validate_certs: no
+  run_once: true
+  delegate_to: "{{ groups['etcd'][0] }}"
+  register: etcd_health
+  until: " 'true' in  etcd_health.content"
+  retries: 5
+  delay: 10
+  loop: "{{ groups['etcd'] }}"

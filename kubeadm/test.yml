@@ -1,0 +1,13 @@
+- name: Initialize configure
+  hosts: etcd
+  tasks:
+  - name: test
+    shell: echo  "{{inventory_hostname}} " >/root/test.txt
+
+- name: main | configuring
+  hosts: kube_master
+  tasks:
+  - name: test1
+    template:
+      src: kubeadm-init.yaml.j2
+      dest: /root/kubeadm-init.yaml

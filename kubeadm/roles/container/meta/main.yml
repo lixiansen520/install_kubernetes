@@ -1,0 +1,7 @@
+---
+dependencies:
+  - role: container/docker
+    when:
+      - container_engine == 'docker'
+    tags:
+      - container

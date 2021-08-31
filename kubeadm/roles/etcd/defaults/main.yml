@@ -1,0 +1,20 @@
+# ETCD 放置在files里的文件名
+etcd_filename: etcd-v3.4.14-linux-amd64.tar.gz
+
+# -----------------配置文件-----------------------------
+# 所有的目录都需要已/结尾
+
+# ETCD 存储目录
+etcd_data_dir: "/var/lib/etcd/default.etcd/"
+
+# TLS 证书文件目录
+tls_dir: "/etc/kubernetes/ssl/"
+
+# ETCD 配置文件目录 
+etcd_conf: "/etc/etcd/"
+
+# --------------------TLS------------------------------------
+
+# 本机证书文件的存放路径
+
+local_tls: "/opt/ssl/"

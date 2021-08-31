@@ -1,0 +1,30 @@
+- name: main | Create a directory if it does not exist
+  file:
+    path: "{{item}}"
+    state: directory
+    mode: '0755'
+  loop:
+    -  "/etc/kubernetes/pki/"
+    -  "/etc/kubernetes/pki/etcd/"
+
+- name: etcd  certificate
+  copy:
+    src: "{{ item }}"
+    dest: /etc/kubernetes/pki/etcd/
+  loop:
+    - "{{local_tls}}etcd.pem"
+    - "{{local_tls}}etcd-key.pem"
+    - "{{local_tls}}ca.pem"
+
+- name: master 分发证书
+  copy:
+    src: "{{ item }}"
+    dest: "{{ kube_tls_dir }}"
+  loop:
+    - "{{kube_tls_dir}}ca.key"
+    - "{{kube_tls_dir}}ca.crt"
+    - "{{kube_tls_dir}}sa.key"
+    - "{{kube_tls_dir}}sa.pub"
+    - "{{kube_tls_dir}}front-proxy-ca.key"
+    - "{{kube_tls_dir}}front-proxy-ca.crt"
+

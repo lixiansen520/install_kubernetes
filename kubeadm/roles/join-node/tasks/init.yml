@@ -1,0 +1,3 @@
+- name: main | init
+  shell: "kubeadm join 192.168.1.100:8443 --token 42xi3f.gl5apgiv3drbtbfl     --discovery-token-ca-cert-hash sha256:e1cf8570ff42dcaa2cc07a20ab81742b8b627e57f36a5a9c18ffa00bd395028c"
+

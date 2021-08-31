@@ -1,0 +1,57 @@
+---
+- name: init | install epel-release
+  yum:
+    name: 
+      - epel-release
+      - chrony
+      - conntrack
+
+- name: init | install packages
+  yum:
+    name: 
+      - chrony
+      - conntrack
+      - jq
+      - curl
+      - sysstat
+      - libseccomp
+      - wget
+      - socat
+      - git
+      - psmisc
+
+- name: init | disable firewalld
+  systemd:
+    name: firewalld
+    state: stopped
+    enabled: no
+
+- name: init | Ensure SELinux is set to disabled mode
+  lineinfile:
+    path: /etc/selinux/config
+    regexp: '^SELINUX='
+    line: SELINUX=disabled
+
+
+- name: init | execute command
+  ignore_errors: yes
+  shell: "{{ item.command }}"
+  loop:
+    - {describe: "stop setenforce", command: "setenforce 0"}
+    - {describe: "set timezone", command: "timedatectl set-timezone Asia/Shanghai"}
+    - {describe: "set ntp", command: "timedatectl set-ntp yes"}
+
+- name: init | starting chronyd
+  systemd:
+    name: chronyd
+    state: restarted
+    enabled: yes
+
+
+- name: init | restarted rsyslog crond
+  systemd:
+    name: "{{ item }}"
+    state: restarted
+  loop:
+    - rsyslog
+

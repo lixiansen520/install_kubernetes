@@ -1,0 +1,15 @@
+---
+- name: etcd | render config file
+  template:
+    dest: "{{ item.dest }}"
+    src: "{{ item.src }}"
+  loop:
+    - { src: etcd.conf.j2, dest: /etc/etcd/etcd.conf }
+    - { src: etcd.service.j2, dest: /lib/systemd/system/etcd.service }
+
+- name: etcd | starting ETCD server
+  systemd:
+    name: etcd 
+    state: restarted 
+    enabled: yes 
+    daemon_reload: yes

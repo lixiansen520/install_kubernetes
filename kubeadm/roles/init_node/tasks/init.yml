@@ -1,0 +1,110 @@
+---
+- name: init | install epel-release
+  yum:
+    name: 
+      - epel-release
+      - chrony
+      - conntrack
+      - ipvsadm
+      - ipset
+
+- name: init | install packages
+  yum:
+    name: 
+      - chrony
+      - conntrack
+      - ipvsadm
+      - ipset
+      - jq
+      - iptables
+      - curl
+      - sysstat
+      - libseccomp
+      - wget
+      - socat
+      - git
+      - psmisc
+      - nfs-utils
+      - rpcbind
+
+- name: init | disable firewalld
+  systemd:
+    name: firewalld
+    state: stopped
+    enabled: no
+
+- name: init | Ensure SELinux is set to disabled mode
+  lineinfile:
+    path: /etc/selinux/config
+    regexp: '^SELINUX='
+    line: SELINUX=disabled
+
+- name: init | Ensure Swap is disabled
+  lineinfile:
+    path: /etc/fstab
+    regexp: '(.*swap.*)'
+    line: '#\g<1>'
+    backrefs: yes
+
+- name: init | set kernel parameters
+  copy:
+    src: kubernetes.conf
+    dest: /etc/sysctl.d/
+
+
+- name: init | execute command
+  ignore_errors: yes
+  shell: "{{ item.command }}"
+  loop:
+    - {describe: "clear iptables policy", command: "iptables -F && iptables -X && iptables -F -t nat && iptables -X -t nat"}
+    - {describe: "clear iptables policy", command: "iptables -P FORWARD ACCEPT"}
+    - {describe: "stop swap", command: "swapoff -a"}
+    - {describe: "stop setenforce", command: "setenforce 0"}
+    - {describe: "sysctl", command: "sysctl -p /etc/sysctl.d/kubernetes.conf"}
+    - {describe: "set timezone", command: "timedatectl set-timezone Asia/Shanghai"}
+    - {describe: "set ntp", command: "timedatectl set-ntp yes"}
+
+- name: init | set kernel mode
+  copy: 
+    src: ipvs.conf
+    dest: /etc/modules-load.d/
+  when: kube_proxy_mode == 'ipvs'
+
+- name: init | set kernel mode
+  ignore_errors: yes
+  shell: "modprobe -- {{item}}"
+  loop:
+    - ip_vs
+    - ip_vs_rr
+    - ip_vs_wrr
+    - ip_vs_sh
+    - nf_conntrack_ipv4
+    - nf_conntrack
+    - br_netfilter
+  when: kube_proxy_mode == 'ipvs'
+
+
+- name: init | start systemd-modules-load
+  ignore_errors: yes
+  systemd:
+    name: systemd-modules-load
+    state: restarted
+    enabled: yes
+  when: kube_proxy_mode == 'ipvs'
+
+
+- name: init | starting chronyd
+  systemd:
+    name: chronyd
+    state: restarted
+    enabled: yes
+
+
+- name: init | restarted rsyslog crond
+  systemd:
+    name: "{{ item }}"
+    state: restarted
+  loop:
+    - rsyslog
+    - crond
+

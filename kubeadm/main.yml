@@ -1,0 +1,58 @@
+- name: Initialize configure
+  hosts: 127.0.0.1
+  roles:
+  - role: tls
+  tags: [tls]
+
+- name: set hostname
+  hosts: kube_node
+  roles:
+  - role: set-hostname
+  tags: [set-hostname]
+
+- name: install etcd
+  hosts: etcd
+  roles:
+  - role: etcd
+  tags: [ etcd ]
+
+- name: install nfsclient
+  hosts: kube_node
+  roles:
+  - role: nfs
+  tags: [ nfs ]
+
+- name: ha
+  hosts: kube_master
+  roles:
+  - role: ha
+  tags: [ha]
+
+- name: init_kube_master
+  hosts: kube_master
+  roles:
+  - role: init_node
+  - role: container
+  - role: install_kubernetes
+  tags: [init_master]
+
+- name: init_kube_node
+  hosts: kube_node
+  roles:
+  - role: init_node
+  - role: install_kubernetes
+  - role: container
+  tags: [init_node]
+
+- name: node join cluster
+  hosts: kube_node
+  roles:
+  - role: join-node
+  tags: [join-node]
+
+- name: init_cluster
+  hosts: kube_master
+  roles:
+  - role: init_cluster
+  tags: [cluster]
+  

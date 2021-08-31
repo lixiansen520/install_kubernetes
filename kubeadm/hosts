@@ -1,0 +1,24 @@
+[etcd]
+192.168.1.90 cluster_name=etcd-1
+192.168.1.91 cluster_name=etcd-2
+192.168.1.92 cluster_name=etcd-3
+
+[kube_master]
+192.168.1.66 hostname=kube-master-1
+192.168.1.88 hostname=kube-master-2
+192.168.1.99 hostname=kube-master-3
+
+[keepalived:children]
+kube_master
+
+[haproxy:children]
+kube_master
+
+
+[kube_node]
+192.168.1.93 hostname=kube-node-192.168.1.93
+192.168.1.96 hostname=kube-node-192.168.1.96
+192.168.1.95 hostname=kube-node-192.168.1.95
+192.168.1.97 hostname=kube-node-192.168.1.97
+192.168.1.76 hostname=kube-node-192.168.1.76
+192.168.1.79 hostname=kube-node-192.168.1.79

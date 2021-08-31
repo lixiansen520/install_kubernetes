@@ -1,0 +1,80 @@
+# 注意所有目录都需要已 / 结尾
+# 注意所有目录都需要已 / 结尾
+# 注意所有目录都需要已 / 结尾
+# ETCD 放置在files里的文件名
+etcd_filename: etcd-v3.4.13-linux-amd64.tar.gz
+
+# -----------------配置文件-----------------------------
+# 所有的目录都需要已/结尾
+
+# ETCD 存储目录
+etcd_data_dir: "/var/lib/etcd/default.etcd/"
+#kubeadm 生成的证书位置
+kube_tls_dir: "/etc/kubernetes/pki/"
+
+# TLS 证书文件目录
+tls_dir: "/etc/kubernetes/ssl/"
+
+# ETCD 配置文件目录 
+etcd_conf: "/etc/etcd/"
+
+# --------------------TLS------------------------------------
+
+# 本机证书文件的存放路径
+
+local_tls: "/opt/ssl/"
+
+# --------------------Master------------------------------------
+
+# APIserver加密etcd数据的秘钥
+# 可以通过: head -c 32 /dev/urandom | base64 获取
+encryption_key: 9i0BYvnK5LKvtKyuIpwX8eMTBnOZKcVgM2R9vhrvLRE=
+
+# kubernetes的配置文件目录
+kube_config_dir: /etc/kubernetes/
+
+# service 的 IP 范围
+service_cluster_ip_range: 10.96.0.0/16
+# K8s svcIP，一般为集群的第一个IP地址
+kubernetes_svc_ip: 10.254.0.1
+# 集群DNS IP, 一般为集群svc第二个IP
+cluster_dns: 10.254.0.2
+# service 的 port 范围
+service_node_port_range: 30000-32767
+
+# 负载均衡的VIP地址
+vip: 192.168.1.100
+
+# 暂时只支持keepalived, 填写None则不使用
+ha_mode: keepalived
+
+# 默认监控状态的密码
+haproxy_admin_password: Co*%42yBhBlXqOi@
+
+# cni
+cni: calico
+
+# 二进制文件目录
+
+binary_dir: /usr/local/bin/
+
+# --------------------node------------------------------------
+# 使用的容器引擎,默认是docker
+container_engine: docker
+
+# docker 版本
+docker_version: 19.03
+kubernetes_version: 1.20.2
+
+cluster_dns_domain: cluster.local
+
+kube_proxy_mode: ipvs
+pod_cidr: 10.244.0.0/16
+
+
+pause_image: registry.aliyuncs.com/google_containers/pause:3.2
+
+core_dns: True
+
+# 不需要更改
+add_node: None

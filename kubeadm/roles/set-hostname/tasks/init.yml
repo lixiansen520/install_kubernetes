@@ -1,0 +1,6 @@
+- name: set hostname file
+  raw: "echo {{hostname|quote}} > /etc/hostname"
+  
+- name: set hostname
+  shell: hostname {{hostname|quote}}
+

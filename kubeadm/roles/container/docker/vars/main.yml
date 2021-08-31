@@ -1,0 +1,46 @@
+docker_versioned_pkg:
+  'latest': docker-ce
+  '17.03': docker-ce-17.03.3.ce-1.el7
+  '17.09': docker-ce-17.09.1.ce-1.el7.centos
+  '17.12': docker-ce-17.12.1.ce-1.el7.centos
+  '18.03': docker-ce-18.03.1.ce-1.el7.centos
+  '18.06': docker-ce-18.06.3.ce-3.el7
+  '18.09': docker-ce-18.09.9-3.el7
+  '19.03': docker-ce-19.03.14-3.el7
+
+docker_pkgs: "{{ docker_versioned_pkg[ docker_version| string ] }}"
+
+# Centos下 容器配置文件,
+docker_config_centos:
+  registry-mirrors: 
+    - https://w8f5u59w.mirror.aliyuncs.com
+  exec-opts:
+    - native.cgroupdriver=systemd
+  log-driver: json-file
+  log-opts: 
+    max-size: 100m
+    max-file: !!str 5
+  storage-driver: overlay2
+  data-root: "{{ docker_data_dir }}"
+  storage-opts:
+    - overlay2.override_kernel_check=true
+
+# Ubuntu 
+docker_config_ubuntu:
+  registry-mirrors: 
+    - https://w8f5u59w.mirror.aliyuncs.com
+  exec-opts:
+    - native.cgroupdriver=systemd
+  log-driver: json-file
+  log-opts: 
+    max-size: 100m
+    max-file: !!str 5
+  storage-driver: overlay2
+  data-root: "{{ docker_data_dir }}"
+
+
+docker_config_mix:
+  Centos: "{{ docker_config_centos }}"
+  Ubuntu: "{{ docker_config_ubuntu }}"
+
+docker_config: "{{ docker_config_mix[ platform | string ] }}"

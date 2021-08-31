@@ -1,0 +1,19 @@
+- name: 配置kubernetes源
+  template:
+     src: kubernetes.repo
+     dest: /etc/yum.repos.d/kubernetes.repo
+
+- name: 安装kubernetes-cni
+  yum:
+    name: kubernetes-cni
+    state: latest
+
+- name: 安装kubeadm 生成除了etcd 之外所有的证书
+  shell: "yum -y install kubeadm"
+
+- name: kubeadm init phase certs
+  shell: "kubeadm init phase certs {{ item }} "
+  loop: "{{certs}}"
+  when: certs[0] != 0
+
+

@@ -1,0 +1,11 @@
+# 默认安装版本
+docker_version: latest
+
+# 默认镜像加速器
+docker_repo: http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+
+# 默认安装平台
+platform: Centos
+
+# 默认docker存储目录
+docker_data_dir: /var/lib/docker

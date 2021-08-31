@@ -1,0 +1,13 @@
+- name: init | install packages
+  yum:
+    name:
+      - nfs-utils
+      - rpcbind
+- name: init | start nfs-client
+  systemd:
+    name: "{{item}}"
+    state: started
+    enabled: yes
+  loop:
+    - nfs
+    - rpcbind

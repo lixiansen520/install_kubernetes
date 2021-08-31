@@ -1,0 +1,25 @@
+---
+- name: main | install keepalived
+  yum:
+    name: keepalived
+    state: present
+
+
+- name: main | configuring
+  template:
+      dest: /etc/keepalived/keepalived.conf
+      src: keepalived.conf.j2
+
+- name: main | starting keepalived
+  systemd:
+    name: keepalived 
+    state: restarted 
+    enabled: yes 
+
+
+- name: Wait for port 8443 of VIP to close active connections
+  wait_for:
+    host: "{{ vip }}"
+    port: 8443
+    delay: 10
+    state: drained

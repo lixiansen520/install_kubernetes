@@ -1,0 +1,24 @@
+---
+- name: main | install haproxy
+  yum:
+    name: haproxy
+    state: present
+
+- name: main | configuring
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+
+
+- name: main | starting haproxy
+  systemd:
+    name: haproxy 
+    state: restarted 
+    enabled: yes 
+
+- name: Wait for port 8443 of 127.0.0.1 to close active connections
+  wait_for:
+    host: 127.0.0.1
+    port: 8443
+    delay: 10
+    state: drained
